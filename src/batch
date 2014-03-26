@@ -1,0 +1,12 @@
+#./runTestSuite alarm_traces/branch/Greg_ALARM_Functional_branch_tests.kind.lus alarm_traces/branch/branch_inputs_nodupe.csv 83 42
+#./runTestSuite alarm_traces/mcdc/Greg_ALARM_Functional_mcdc_tests.kind.lus alarm_traces/mcdc/mcdc_inputs_nodupe.csv 122 42
+
+models=`ls alarm_traces/models/`
+
+for m in $models; do
+	echo $m
+	./runTestSuite "alarm_traces/models/"$m alarm_traces/mcdc/mcdc_inputs_nodupe.csv 122 42
+	mv "alarm_traces/models/"$m"_trace.csv" "alarm_traces/models/"$m"_MCDC_trace.csv"
+	./runTestSuite "alarm_traces/models/"$m alarm_traces/branch/branch_inputs_nodupe.csv 83 42
+	mv "alarm_traces/models/"$m"_trace.csv" "alarm_traces/models/"$m"_BRANCH_trace.csv"
+done

@@ -1,0 +1,31 @@
+#	Gregory Gay (greg@greggay.com)
+#	Last Modified: 09/25/2013
+#	
+#	runTestSuiteOMCDC
+#	Script to execute a set of tests (in a trace file) against a model and measure OMCDC coverage
+#
+#	$1 = model
+#	$2 = trace to extract inputs from
+#	$3 = oracle listing
+#	$4 = number of tests
+#	$5 = number of input variables
+
+
+make compile
+java PretranslatePass $1 >> translated.lus
+
+
+for((test=0;test<=$4;test++)); do
+	echo ""
+        echo "Test: "$test
+        # Extract inputs
+        python extractInputs.py -o $2 -i $5 -t $test
+	java -Xms1G LustreInterpreter translated.lus inputs.csv omcdc $3 
+
+        rm inputs.csv
+	rm ordered.lus
+done
+
+make clean
+rm translated.lus
+cat matrix.csv

@@ -1,0 +1,40 @@
+#	Gregory Gay (greg@greggay.com)
+#	Last Modified: 09/25/2013
+#	
+#	runTestSuite
+#	Script to execute a set of tests (in a trace file) against a model
+#
+#	$1 = model
+#	$2 = trace to extract inputs from
+#	$3 = number of tests
+#	$4 = number of input variables
+
+
+make compile
+
+java PretranslatePass $1 >> translated.lus
+
+for((test=0;test<=$3;test++)); do
+	echo ""
+        echo "Test: "$test
+        # Extract inputs
+        python extractInputs.py -o $2 -i $4 -t $test
+	java LustreInterpreter translated.lus inputs.csv simulate >> temp.csv
+ 
+	steps=`cat temp.csv | wc -l`
+	let steps=steps-1
+
+        if [ $test -eq 0 ]; then
+        	cat temp.csv >> $1"_trace.csv"
+       	else
+                echo "" >> $1"_trace.csv"
+        	tail -$steps temp.csv >> $1"_trace.csv"
+        fi
+
+        rm inputs.csv
+	rm temp.csv
+	rm ordered.lus
+done
+
+make clean
+rm translated.lus

@@ -1,4 +1,0 @@
-./runTestSuiteOMCDC ../experiment/vertmax_batch_obfs.lus ../experiment/vertmax_batch_noninlined_no_range_obs__correct.csv ../experiment/Vertmax_oracle.csv 897 40
-
-mv matrix.csv ../experiment/vertmax_random_to_omcdc_matrix.csv
-

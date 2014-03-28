@@ -1,7 +1,7 @@
 /*
 	Gregory Gay (greg@greggay.com)
 	Lustre.g
-	Last Updated: 10/02/2013
+	Last Updated: 03/28/2014
 
 	Lustre grammar for Antlr4
 */
@@ -19,10 +19,10 @@ compilationUnit		:	(constDeclaration)* nodeDeclaration nodeDefinition;
 
 // Node Declaration Parser Rules
 
-constDeclaration	:	'const' IDENTIFIER ':' BASICTYPE '=' (simple_expr_p25) ';';
+constDeclaration	:	'const' IDENTIFIER ':' type '=' (simple_expr_p25) ';';
 nodeDeclaration		:	'node' IDENTIFIER '(' in=nodeArgs ')' ( 'returns' ) '(' out=nodeArgs ')' ';' (constDeclaration)*  nodeVars*;
 nodeVars		:	'var' nodeArgs;
-nodeArgs		:	(nodeArgsHelper ':' BASICTYPE ('^' (shift_expression) )? ';'?)+;
+nodeArgs		:	(nodeArgsHelper ':' type ('^' (shift_expression) )? ';'?)+;
 nodeArgsHelper		:	IDENTIFIER
 				| IDENTIFIER ',' nodeArgsHelper;
 nodeDefinition		:	'let' nodeBody* 'tel' ';';
@@ -34,6 +34,13 @@ nodeAff			:	IDENTIFIER vectorHelper?
 				| '(' IDENTIFIER vectorHelper? (',' IDENTIFIER vectorHelper?)+ ')';
 
 vectorHelper		:	'[' expression ('..' expression )?  ']'; //bug present there
+
+type			:	'bool' 
+				| 'int' 
+				| 'real'
+				| 'subrange' '[' bound ',' bound ']' 'of' 'int';
+
+bound			:	'-'? DECIMAL;
 
 // Expression Parser Rules
 
@@ -48,7 +55,7 @@ xor_expression		:	equal_expression (op=('='|'<>') equal_expression)*;
 equal_expression	:	compare_expression (op=('<'|'<='|'>='|'>') compare_expression)*;
 compare_expression	:	shift_expression (op=('<<'|'>>') shift_expression)*;
 shift_expression	:	add_expression (op=('+'|'-') add_expression)*;
-add_expression		:	mul_expression (op=('*'|'/'|'div'|'%') mul_expression)*;
+add_expression		:	mul_expression (op=('*'|'/'|'div'|'mod') mul_expression)*;
 mul_expression		:	when_expression (op='when' when_expression)*;
 when_expression		:	unaryExpression;
 
@@ -79,13 +86,7 @@ literal : DECIMAL
 
 TYPED_REAL_LIT : DECIMAL '.'DECIMAL ('s' | 'd') ; 
 TYPED_INT_LIT : DECIMAL 'int' DECIMAL ; 
-//REAL_LIT : DIGIT+ '.' DIGIT+ ; 
-//INT_LIT :   DIGIT+ ;
-//BIT_INT_TYPE : 'int' DECIMAL? ; 
 
-BASICTYPE		:	'bool' 
-				| 'int' 
-				| 'real';
 BOOLCONSTANT		:	'true' 
 				| 'false';
 DECIMAL    		:	('0'..'9')+;

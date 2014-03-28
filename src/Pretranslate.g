@@ -58,7 +58,7 @@ preConstDeclaration	:	constDeclaration
 						printQueue.add($constDeclaration.text);
 					};
 				};
-constDeclaration	:	('const' (IDENTIFIER) (',' IDENTIFIER)* ':' BASICTYPE ('=' (shift_expression) )? ';')*;
+constDeclaration	:	('const' (IDENTIFIER) (',' IDENTIFIER)* ':' type ('=' (shift_expression) )? ';')*;
 preNodeDeclaration	:	nodeDeclaration 
 				{	printQueue.add($nodeDeclaration.text);
 					printQueue.add("let");
@@ -66,8 +66,8 @@ preNodeDeclaration	:	nodeDeclaration
 nodeDeclaration		:	'node' IDENTIFIER '(' nodeArgs ')' ( 'returns' ) '(' nodeArgs ')' ';' preConstDeclaration  nodeVars*;
 
 nodeVars		:	'var' nodeArgs;
-nodeArgs		:	(nodeArgsHelper ':' BASICTYPE ('^' (shift_expression) )? ';'?
-				{	dataTypes.put($nodeArgsHelper.text,$BASICTYPE.text);
+nodeArgs		:	(nodeArgsHelper ':' a=type ('^' (shift_expression) )? ';'?
+				{	dataTypes.put($nodeArgsHelper.text,$a.text);
 				})+;
 nodeArgsHelper		:	IDENTIFIER
 				| IDENTIFIER ',' nodeArgsHelper;
@@ -105,6 +105,13 @@ nodeAff			:	IDENTIFIER vectorHelper?
 				| '(' IDENTIFIER vectorHelper? (',' IDENTIFIER vectorHelper?)+ ')';
 
 vectorHelper		:	'[' expression ('..' expression )?  ']'; //bug present there
+
+type			:	'bool' 
+				| 'int' 
+				| 'real'
+				| 'subrange' '[' bound ',' bound ']' 'of' 'int';
+
+bound			:	'-'? DECIMAL;
 
 // Expression Parser Rules
 
@@ -198,13 +205,7 @@ literal : DECIMAL
 
 TYPED_REAL_LIT : DECIMAL '.'DECIMAL ('s' | 'd') ; 
 TYPED_INT_LIT : DECIMAL 'int' DECIMAL ; 
-//REAL_LIT : DIGIT+ '.' DIGIT+ ; 
-//INT_LIT :   DIGIT+ ;
-//BIT_INT_TYPE : 'int' DECIMAL? ; 
 
-BASICTYPE		:	'bool' 
-				| 'int' 
-				| 'real';
 BOOLCONSTANT		:	'true' 
 				| 'false';
 DECIMAL    		:	('0'..'9')+;

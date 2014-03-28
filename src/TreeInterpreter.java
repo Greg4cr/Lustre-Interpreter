@@ -134,7 +134,7 @@ public class TreeInterpreter extends LustreBaseListener {
 			//System.out.println(currentExpression+"="+result);
 
 			// All math done as doubles, so convert to int if it's supposed to be int. 
-			if(typeMap.get(currentExpression).equals("int")){
+			if(typeMap.get(currentExpression).equals("int") || typeMap.get(currentExpression).contains("subrange")){
 				try{
 					int intermediate = (int) Math.round(Double.parseDouble(result));
 					result=Integer.toString(intermediate);
@@ -735,7 +735,7 @@ public class TreeInterpreter extends LustreBaseListener {
 				double right = Double.parseDouble(stack.pop());
 				double left = Double.parseDouble(stack.pop());
 				stack.push(Double.toString(left/right));
-			}else if(ctx.op.getText().equals("%")){
+			}else if(ctx.op.getText().equals("mod")){
 				//Modulo
 				double right = Double.parseDouble(stack.pop());
 				double left = Double.parseDouble(stack.pop());
@@ -866,8 +866,7 @@ public class TreeInterpreter extends LustreBaseListener {
 					}	
 				}
 				//If it's an int and not part of an expression, add it to the used variables list to propogate tags
-				if(typeMap.containsKey(symbol.getText())&&(typeMap.get(symbol.getText()).equals("int")||typeMap.get(symbol.getText()).equals(
-"real"))&&omcdcFlag==true){
+				if(typeMap.containsKey(symbol.getText())&&(typeMap.get(symbol.getText()).equals("int")||typeMap.get(symbol.getText()).equals("real")||typeMap.get(symbol.getText()).contains("subrange"))&&omcdcFlag==true){
 					ArrayList<String> intVars = new ArrayList<String>();
 					if(usedVars.containsKey(currentExpression)){
 						intVars = usedVars.get(currentExpression);

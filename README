@@ -8,28 +8,30 @@ This Source Code is subject to the terms of the Mozilla Public License, v. 2.0.
 If a copy of the MPL was not distributed with this file, You can obtain one at 
 http://mozilla.org/MPL/2.0/.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, 
-INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
-PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT 
-HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION 
-OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE 
-SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING 
+FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS 
+IN THE SOFTWARE.
 -------------------------------------------------
 
 Version 1.0
 
 NOTES
-- This is research code, and comes with the usual caveats. The code is a work in progress, 
-and I would love to clean it up when I have more time, but for now - it does what it needs to 
-do for my purposes. Feel free to use it, upgrade it, improve it - let me know if you do! - but 
-if it breaks, don't be too surprised. Enjoy!
+- This is research code, and comes with the usual caveats. The code is a 
+work in progress, and I would love to clean it up when I have more time, 
+but for now - it does what it needs to do for my purposes. Feel free to 
+use it, upgrade it, improve it - let me know if you do! - but if it breaks, 
+don't be too surprised. Enjoy!
 - This interpreter supports a limited subset of the Lustre language, namely:
 	- Currently, the interpreter only supports single-node Lustre models.
 	- Subsets are not supported
-- OMC/DC refers to the Observable MC/DC source code coverage metric for software testing. 
-Given a set of inputs and the use of the omcdc command line flag, the interpreter will track which
-OMC/DC obligations are satisfied and produce a report. 
-For more information, see: http://www.greggay.com/pdf/13omcdc.pdf
+- OMC/DC refers to the Observable MC/DC source code coverage metric for software 
+testing. Given a set of inputs and the use of the omcdc command line flag, the 
+interpreter will track which OMC/DC obligations are satisfied and produce a 
+report. For more information, see: http://www.greggay.com/pdf/13omcdc.pdf
 
 -----------------------------
 To compile:

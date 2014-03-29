@@ -1,7 +1,7 @@
 /*
 	Gregory Gay (greg@greggay.com)
 	LustreInterpreter
-	Last Updated: 03/26/2014
+	Last Updated: 03/29/2014
 
 	Interpreter for the Lustre synchronous language
 */
@@ -194,48 +194,69 @@ public class LustreInterpreter{
 
 		try{
 			BufferedReader reader = new BufferedReader(new FileReader(filename));
+			FileWriter writer = new FileWriter("ordered.lus");
 			String line="";
 			Boolean incomplete = false;
 			String exp="";
 			String var="";
+			Boolean comment = false;
 
-			while((line=reader.readLine())!=null){
-				if(incomplete==true){
-					exp = exp+" "+line.trim();
-					if(line.contains(";")){
-						incomplete=false;
-						expressions.put(var,exp);
+			try{
+				while((line=reader.readLine())!=null){
+					if(incomplete==true){
+						exp = exp+" "+line.trim();
+						if(line.contains(";")){
+							incomplete=false;
+							expressions.put(var,exp);
+						}
+					}else if(line.contains("=") && !line.contains("const") && comment==false){
+						var=line.split("=")[0].trim();
+						exp=line;
+						if(!line.contains(";")){
+							incomplete=true;
+						}else{
+							expressions.put(var,exp);
+						}
+					}else if(incomplete==false){
+						if(line.contains("/*")){
+							comment=true;
+						}
+	
+						if(comment==false){
+							otherLines.add(line);
+						}
+						if(line.contains("*/")){
+							comment=false;
+						}
 					}
-				}else if(line.contains("=") && !line.contains("const")){
-					var=line.split("=")[0].trim();
-					exp=line;
-					if(!line.contains(";")){
-						incomplete=true;
-					}else{
-						expressions.put(var,exp);
-					}
-				}else if(incomplete==false){
-					otherLines.add(line);
 				}
-			}
+				reader.close();
 
-			BufferedWriter writer = new BufferedWriter(new FileWriter("ordered.lus"));
-
-			// Print header lines
-			for(int l=0;l<otherLines.size();l++){
-				String current=otherLines.get(l);
-				if(current.trim().equals("let")||current.contains("let ")){
-					writer.write(current+"\n");
-					//Print out ordered expressions
-					for(int where=0;where<order.size();where++){
-						String expr = expressions.get(order.get(where));
-						writer.write(expr.replaceAll("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)","")+"\n");
+			
+				// Print header lines
+				for(int l=0;l<otherLines.size();l++){
+					String current=otherLines.get(l);
+					if(current.trim().equals("let")||current.contains("let ")){
+						writer.write(current+"\n");
+						//Print out ordered expressions
+						for(int where=0;where<order.size();where++){
+							String expr = expressions.get(order.get(where));
+							if(expr!=null){
+								writer.write(expr.replaceAll("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)","")+"\n");
+							}
+							//writer.flush();
+						}
+					}else if(!current.equals("")){
+						writer.write(current.replaceAll("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)","")+"\n");
 					}
-				}else if(!current.equals("")){
-					writer.write(current+"\n");
 				}
-			}
-			writer.close();
+				writer.close();
+			}catch(Exception e){
+				e.printStackTrace();
+			}finally{
+				reader.close();
+				writer.close();
+			}	
 
 		}catch(Exception e){
 			e.printStackTrace();

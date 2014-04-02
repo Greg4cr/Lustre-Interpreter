@@ -3,6 +3,7 @@
 	LustreInterpreter
 	Last Updated: 04/02/2014
 		(Optimizations: No longer requires generation of ordered model if one already exists)
+		(Enhancement: Can now resume from a partial trace.)
 
 	Interpreter for the Lustre synchronous language
 */
@@ -60,14 +61,27 @@ public class LustreInterpreter{
 				parser = new LustreParser(tokens);
 				tree = parser.lustre();
 
+				int startRound=1;
+
 				TreeInterpreter interpreter = new TreeInterpreter();
 				interpreter.setModel(args[0]);		
-				//if ordering specified, set ordering
+				//Optional command line arguments
 				if(args.length>3){
-					interpreter.setTraceOrder(readOracleFile(args[3]));
+					for(int arg=3;arg<args.length;arg++){
+						String[] parts=args[arg].split("=");
+	
+						if(parts[0].equals("order")){
+							interpreter.setTraceOrder(readOracleFile(parts[1]));
+						}else if(parts[0].equals("resume")){
+							interpreter.resumeExecution(parts[1]);
+							startRound=interpreter.getRound()+1;
+						}else{
+							System.out.println("Warning: Unsupported Argument");
+						}
+					}
 				}	
 
-				for(int round=1;round<inputs.size();round++){
+				for(int round=startRound;round<inputs.size();round++){
 					//Seed in input values
 					HashMap<String,String> currentInput = getInputMap(inputs.get(0),inputs.get(round));
 					interpreter.seedInput(currentInput);
@@ -111,8 +125,22 @@ public class LustreInterpreter{
 
 				TreeInterpreter interpreter = new TreeInterpreter();
 				interpreter.trackOMCDC(true);		
-				interpreter.setModel(args[0]);	
-				interpreter.setOracle(readOracleFile(args[3]));
+				interpreter.setModel(args[0]);
+					
+				//Optional command line arguments
+				if(args.length>3){
+					for(int arg=3;arg<args.length;arg++){
+						String[] parts=args[arg].split("=");
+						
+						if(parts[0].equals("oracle")){
+							interpreter.setOracle(readOracleFile(parts[1]));
+						}else if(parts[0].equals("resume")){
+							System.out.println("Warning: OMCDC tracking does not support resuming from a previous trace.");
+						}else{
+							System.out.println("Warning: Unsupported Argument");
+						}
+					}
+				}
 
 				for(int round=1;round<inputs.size();round++){	
 					//Seed in input values

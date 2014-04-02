@@ -22,7 +22,7 @@ cat ../demo/results/trace.csv
 
 echo ""
 echo "Tracking OMC/DC Coverage"
-java LustreInterpreter translated.lus inputs.csv omcdc oracle.csv >> ../demo/results/omcdc.csv
+java LustreInterpreter translated.lus inputs.csv omcdc "oracle=oracle.csv" >> ../demo/results/omcdc.csv
 cat ../demo/results/omcdc.csv
 mv matrix.csv ../demo/results/
 

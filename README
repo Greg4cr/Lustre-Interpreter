@@ -44,7 +44,15 @@ make clean
 
 To execute: (following compile)
 
-java LustreSimulator.java <model filename> <inputs filename> <operation mode> <variable file - optional for simulate mode, specifies an ordering and which variables are in the trace; required for OMC/DC tracking, specifies the oracle variables>
+java LustreSimulator.java <model filename> <inputs filename> <operation mode> <optional arguments>
+
+Optional arguments are:
+oracle=filename
+(variable file - required for OMC/DC tracking, specifies the oracle variables)
+order=filename
+(variable file - optional for simulate mode, specifies an ordering and which variables are in the trace)
+resume=filename
+(trace file - resume from an existing trace, same format as input file)
 
 ----------------------------
 Input file should be in format

@@ -1,8 +1,8 @@
 /*
 	Gregory Gay (greg@greggay.com)
 	TreeInterpreter
-	Last Updated: 3/25/2014 
-		(Interpreter can now handle inlined expressions within a pre(expr))
+	Last Updated: 4/02/2014 
+		(Interpreter can now resume execution from the end of an existing trace)
 
 	Listener that performs actions on the parse tree derived from a Lustre model.
 */
@@ -16,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.HashSet;
 import java.util.TreeSet;
+import java.io.BufferedReader;
+import java.io.FileReader;
 
 public class TreeInterpreter extends LustreBaseListener {
 	// Mapping of variables to values
@@ -54,6 +56,8 @@ public class TreeInterpreter extends LustreBaseListener {
 	int total=0;
 	// Are we within a pre
 	Boolean preFlag=false;
+	// Are we resuming from a partial execution?
+	int partialFlag=0;
 
 	//Populate variable type map
 	@Override
@@ -61,7 +65,7 @@ public class TreeInterpreter extends LustreBaseListener {
 		String variable="";
 		String type="";
 
-		if(round==1){
+		if(round==1 || partialFlag>0){
 			for(int child=0;child<ctx.getChildCount();child++){
 				if((child+1<ctx.getChildCount())&&(ctx.getChild(child+1).getText().equals(":"))){
 					variable=ctx.getChild(child).getText();
@@ -77,6 +81,13 @@ public class TreeInterpreter extends LustreBaseListener {
 							valMap.put(variable,"true");
 						}else if(valMap.get(variable).equals("0")){
 							valMap.put(variable,"false");
+						}
+					}
+					if(type.equals("bool")&&preMap.containsKey(variable)){
+						if(preMap.get(variable).equals("1")){
+							preMap.put(variable,"true");
+						}else if(preMap.get(variable).equals("0")){
+							preMap.put(variable,"false");
 						}
 					}
 					variable="";
@@ -123,6 +134,7 @@ public class TreeInterpreter extends LustreBaseListener {
 			decision=0;
 			expFlag=false;
 			tagStack=new Stack<HashSet<ConditionLocation>>();
+			//System.out.println(currentExpression);
 		}
 	}
 
@@ -139,7 +151,7 @@ public class TreeInterpreter extends LustreBaseListener {
 					int intermediate = (int) Math.round(Double.parseDouble(result));
 					result=Integer.toString(intermediate);
 				}catch(Exception e){
-					System.out.println(currentExpression+"="+result);
+					//System.out.println(currentExpression+"="+result);
 				}
 			}
 
@@ -157,7 +169,7 @@ public class TreeInterpreter extends LustreBaseListener {
 				tagSet.put(currentExpression,tags);
 			}
 
-			if(round==1){
+			if(round==1 || partialFlag>0){
 				expressionOrder.add(currentExpression);
 			}
 
@@ -817,14 +829,14 @@ public class TreeInterpreter extends LustreBaseListener {
 				value=symbol.getText();
 			}else if(symbol.getType()==LustreParser.BOOLCONSTANT){
                 		value=symbol.getText();
-			}else if(typeMap.containsKey(symbol.getText())){
+			}else if(typeMap.containsKey(symbol.getText())){	
 				if(typeMap.get(symbol.getText()).equals("bool")){
 					value="false"; //Unresolved variables, default value that shouldn't end up getting used
 				}else{
 					value="0";
-				}
+				}	
 			}
-			
+		
 		}else if(valMap.containsKey(symbol.getText())){
 			value=valMap.get(symbol.getText());
 
@@ -1014,6 +1026,48 @@ public class TreeInterpreter extends LustreBaseListener {
 		tagStack=new Stack<HashSet<ConditionLocation>>();
 		usedVars = new HashMap<String,ArrayList<String>>();
 		seqUsedVars = new HashMap<String,ArrayList<String>>();
+		
+		partialFlag--;
+	}
+
+	// Resume from a partial trace
+	public void resumeExecution(String filename){
+		// Read in file
+		HashMap<String,String> prevVals = new HashMap<String,String>();
+
+		// Print trace
+		try{
+			BufferedReader traceFile = new BufferedReader(new FileReader(filename));
+
+			int lineNum=0;
+			String header="";
+			String current="";
+			String line="";
+			while((line=traceFile.readLine())!=null){
+				lineNum++;
+				if(lineNum==1){
+					header=line;
+				}else{
+					current=line;
+				}
+				System.out.println(line);
+			}
+
+			String[] vars = header.split(",");
+			String[] vals = current.split(",");
+
+			for(int position=0;position<vars.length;position++){
+				prevVals.put(vars[position],vals[position]);
+			}
+
+			//Populate value map for last round and set round counter
+			valMap = prevVals;
+			round = lineNum-1;
+			partialFlag=2;
+			
+		}catch(Exception e){
+			e.printStackTrace();
+		}
 	}
 
 	// Set oracle
@@ -1035,6 +1089,11 @@ public class TreeInterpreter extends LustreBaseListener {
 	// Flag OMC/DC Tracking
 	public void trackOMCDC(Boolean on){
 		omcdcFlag=on;
+	}
+
+	//Get round number
+	public int getRound(){
+		return round;
 	}
 
 	// Check if a string is a number

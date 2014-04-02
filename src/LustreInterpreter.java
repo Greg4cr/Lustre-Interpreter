@@ -1,7 +1,8 @@
 /*
 	Gregory Gay (greg@greggay.com)
 	LustreInterpreter
-	Last Updated: 03/29/2014
+	Last Updated: 04/02/2014
+		(Optimizations: No longer requires generation of ordered model if one already exists)
 
 	Interpreter for the Lustre synchronous language
 */
@@ -36,14 +37,24 @@ public class LustreInterpreter{
 			OrderOfExecution order = new OrderOfExecution();
 
 			if(mode.equals("simulate")){
-				walker.walk(order,tree);
-				// If not all variables in order	
-				while(order.getUnresolved().size() > 0){	
+				Boolean orderedFileExists=false;
+
+				try{
+					File checkForOrdered= new File("ordered.lus");
+					orderedFileExists=checkForOrdered.exists();
+				}catch(Exception e){}
+
+				if(!orderedFileExists){				
 					walker.walk(order,tree);
+					// If not all variables in order	
+					while(order.getUnresolved().size() > 0){	
+						walker.walk(order,tree);
+					}
+					ArrayList<String> vars = order.getResolved();
+					// Now simulate from reordered file
+					modelPrinter(args[0],vars);
 				}
-				ArrayList<String> vars = order.getResolved();
-				// Now simulate from reordered file
-				modelPrinter(args[0],vars);
+
 				lex = new LustreLexer(new ANTLRFileStream("ordered.lus"));
 				tokens = new CommonTokenStream(lex);
 				parser = new LustreParser(tokens);
@@ -74,14 +85,25 @@ public class LustreInterpreter{
 
 				modelPrinter(args[0],vars);
 			}else if(mode.equals("omcdc")){
-				walker.walk(order,tree);
-				// If not all variables in order	
-				while(order.getUnresolved().size() > 0){	
+
+				Boolean orderedFileExists=false;
+
+				try{
+					File checkForOrdered= new File("ordered.lus");
+					orderedFileExists=checkForOrdered.exists();
+				}catch(Exception e){}
+
+				if(!orderedFileExists){				
 					walker.walk(order,tree);
+					// If not all variables in order	
+					while(order.getUnresolved().size() > 0){	
+						walker.walk(order,tree);
+					}
+					ArrayList<String> vars = order.getResolved();
+					// Now simulate from reordered file
+					modelPrinter(args[0],vars);
 				}
-				ArrayList<String> vars = order.getResolved();
-				// Now simulate from reordered file
-				modelPrinter(args[0],vars);
+
 				lex = new LustreLexer(new ANTLRFileStream("ordered.lus"));
 				tokens = new CommonTokenStream(lex);
 				parser = new LustreParser(tokens);

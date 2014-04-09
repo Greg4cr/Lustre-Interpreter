@@ -116,9 +116,7 @@ bound			:	'-'? DECIMAL;
 // Expression Parser Rules
 
 expression		:	binary_expression;
-
 current    		:	'current' '(' expression ')';
-
 binary_expression	:	a=if_expression ('->' b=if_expression)*;
 if_expression 		: 	'if' followBy_expression 'then' followBy_expression ('else' followBy_expression)? 
 				| followBy_expression ; 
@@ -191,6 +189,8 @@ simple_expr_term :
 		}
 	}
    | literal 
+   | ('real' | 'floor') '(' expression ')'
+   | 'cast(' expression ',' ('real' | 'int') ')' 
    | '(' expression ')' 
    ; 
 

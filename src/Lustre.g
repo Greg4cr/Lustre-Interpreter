@@ -1,7 +1,7 @@
 /*
 	Gregory Gay (greg@greggay.com)
 	Lustre.g
-	Last Updated: 03/28/2014
+	Last Updated: 04/09/2014
 
 	Lustre grammar for Antlr4
 */
@@ -71,7 +71,9 @@ simple_expr_p30 : simple_expr_term ;
         
 simple_expr_term :
      IDENTIFIER
-   | literal 
+   | literal
+   | ('real' | 'floor') '(' expression ')' 
+   | 'cast(' expression ',' ('real' | 'int') ')' 
    | '(' expression ')'
    ; 
 
